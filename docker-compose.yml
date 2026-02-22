@@ -1,0 +1,20 @@
+services:
+  dragonfly:
+    image: dragonflydb/dragonfly:v1.27.1
+    ports:
+      - "6379:6379"
+    command: --bind=0.0.0.0
+    # TODO: Dodaj volumes dla persistencji: ./dragonfly-data:/data
+
+  backend:
+    build: ./backend
+    ports:
+      - "3001:3001"
+    depends_on:
+      - dragonfly
+    environment:
+      - REDIS_URL=redis://dragonfly:6379
+      # Dodaj Windows WiFi IP po uruchomieniu wsl2-portforward.ps1
+      # Przykład: http://localhost:9000,http://192.168.1.42:9000
+      - CORS_ORIGINS=http://localhost:9000,http://192.168.1.26:9000
+    # TODO: Dodaj restart: unless-stopped dla produkcji
